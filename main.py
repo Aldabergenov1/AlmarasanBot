@@ -14,4 +14,4 @@ async def start(message: Message):
     await message.answer("")
 
 
-@dp.message()
+#@dp.message()
