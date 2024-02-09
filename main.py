@@ -6,6 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, default_state, State
 from datetime import datetime, timezone, timedelta
 from collections import defaultdict
+from menu_setter import set_main_menu
 
 
 bot = Bot(TOKEN)
@@ -38,14 +39,14 @@ class OrderStates(StatesGroup):
 @dp.message(CommandStart(), StateFilter(default_state))
 async def process_start_command(message: Message):
     await message.answer("Я бот, организовывающий заказы второй смены и контейнеров в культурном центре Алмарасан!"
-                         "Для получения помощи по использованию пропиши /help")
+                         "Для получения помощи по использованию пропиши  /help")
 
 
 @dp.message(Command(commands=["help"]), StateFilter(default_state))
 async def process_help_command(message: Message):
-    await message.answer("/order - Заказ второй смены на обед или ужин"
-                         "/container - Заказ контейнера с собой"
-                         "/delete_order - Отменить заказ второй смены на обед или ужин"
+    await message.answer("/order - Заказ второй смены на обед или ужин\n"
+                         "/container - Заказ контейнера с собой\n"
+                         "/delete_order - Отменить заказ второй смены на обед или ужин!!!\n"
                          "/delete_container - Отменить заказ контейнера с собой")
 
 
@@ -129,4 +130,5 @@ async def process_wrong_callback(callback: CallbackQuery, state: FSMContext):
 
 
 if __name__ == '__main__':
+    set_main_menu(bot)
     dp.run_polling(bot)
