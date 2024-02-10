@@ -52,18 +52,12 @@ async def process_help_command(message: Message):
 
 @dp.message(Command(commands=["list"]), StateFilter(default_state))
 async def process_list_command(message: Message):
-    merged_dict = defaultdict(dict)
-    for key, value in user_dict.items():
-        merged_dict[key].update(value)
-
-    formatted_strings = [
-        f"{idx})\n" + '\n'.join([f"    {key}: {value}" for key, value in entry.items()])
-        for idx, entry in enumerate(merged_dict.values(), start=1)
-    ]
-
-    for string in formatted_strings:
-        print(string)
-    await message.answer(f"{user_dict}")
+    nickname = user_dict[message.from_user.id]["nickname"]
+    term = "Вторая смена на обед" if user_dict[message.from_user.id]["order_term"] == "lunch" else "Вторая смена на ужин"
+    date = user_dict[message.from_user.id]["order_date"]
+    await message.answer(f"Никнейм: {nickname}\n"
+                         f"Заказал: {term}\n"
+                         f"Дата: {date[-2]}:{date[-1]}, {date[2]}.{date[1]}.{date[0]}")
 
 
 @dp.message(Command(commands=["order"]), StateFilter(default_state))
@@ -83,8 +77,11 @@ async def process_dinner_callback(callback: CallbackQuery, state: FSMContext):
         user_dict[callback.from_user.id] = {
             "nickname": callback.from_user.username,
             "order_term": "dinner",
-            "order_date": (callback.message.date.year, callback.message.date.month,
-                           callback.message.date.hour, callback.message.date.minute)
+            "order_date": (callback.message.date.astimezone(almaty_timezone).year,
+                           callback.message.date.astimezone(almaty_timezone).month,
+                           callback.message.date.astimezone(almaty_timezone).day,
+                           callback.message.date.astimezone(almaty_timezone).hour,
+                           callback.message.date.astimezone(almaty_timezone).minute)
         }
         print(user_dict)
         await state.set_state(default_state)
@@ -108,8 +105,11 @@ async def process_lunch_callback(callback: CallbackQuery, state: FSMContext):
         user_dict[callback.from_user.id] = {
             "nickname": callback.from_user.username,
             "order_term": "lunch",
-            "order_date": (callback.message.date.year, callback.message.date.month,
-                           callback.message.date.hour, callback.message.date.minute)
+            "order_date": (callback.message.date.astimezone(almaty_timezone).year,
+                           callback.message.date.astimezone(almaty_timezone).month,
+                           callback.message.date.astimezone(almaty_timezone).day,
+                           callback.message.date.astimezone(almaty_timezone).hour,
+                           callback.message.date.astimezone(almaty_timezone).minute)
         }
         print(user_dict)
         await state.set_state(default_state)
@@ -124,7 +124,7 @@ async def process_lunch_callback(callback: CallbackQuery, state: FSMContext):
 
 
 @dp.message(StateFilter(OrderStates.ordering))
-async def process_wrong_callback(callback: CallbackQuery, state: FSMContext):
+async def process_wrong_callback(callback: CallbackQuery):
     await callback.answer(text="Пожалуйста, выберите из предложенных вариантов!",
                           reply_markup=order_keyboard)
 
