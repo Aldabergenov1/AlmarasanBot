@@ -17,3 +17,8 @@ class Container:
         self.owner = owner
         self.week_day = week_day
         self.created_at = datetime.now()
+
+class User:
+    def __init__(self, user_id, user_name):
+        self.user_id = user_id
+        self.user_name = user
